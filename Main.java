@@ -4,33 +4,35 @@ import java.io.*;
 
 class Main {
     public static void main (String [] args){
-	if(args.length != 1){
-	    System.err.println("Usage: java Driver <inputFile>");
-	    System.exit(1);
-	}
-	FileInputStream fis = null;
-	try{
-	    fis = new FileInputStream(args[0]);
-	    MiniJavaParser parser = new MiniJavaParser(fis);
-	    System.err.println("Program parsed successfully.");
-		Goal root = parser.Goal();
+		if(args.length == 0) {
+			System.err.println("Usage: Main <file1> <file2> ... <fileN>");
+			System.exit(1);
+		}
+		for(int i = 0 ; i < args.length ; i++) {
 
-	    FirstVisitor eval = new FirstVisitor();
-	    System.out.println(root.accept(eval, null));
-	}
-	catch(ParseException ex){
-	    System.out.println(ex.getMessage());
-	}
-	catch(FileNotFoundException ex){
-	    System.err.println(ex.getMessage());
-	}
-	finally{
-	    try{
-		if(fis != null) fis.close();
-	    }
-	    catch(IOException ex){
-		System.err.println(ex.getMessage());
-	    }
-	}
+			FileInputStream fis = null;
+			ClassInfo main = new ClassInfo();
+
+			try {
+				fis = new FileInputStream(args[0]);
+				MiniJavaParser parser = new MiniJavaParser(fis);
+				Goal root = parser.Goal();
+				FirstVisitor eval = new FirstVisitor();
+
+				root.accept(visitor, main);
+
+				System.out.println(root.accept(eval, null));
+			} catch (ParseException ex) {
+				System.out.println(ex.getMessage());
+			} catch (FileNotFoundException ex) {
+				System.err.println(ex.getMessage());
+			} finally {
+				try {
+					if (fis != null) fis.close();
+				} catch (IOException ex) {
+					System.err.println(ex.getMessage());
+				}
+			}
+		}
     }
 }

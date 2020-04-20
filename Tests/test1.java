@@ -5,7 +5,7 @@ class TestEx1 {
 }
 
 class A {
-    int i;
+    int [] i;
     boolean flag;
     int j;
     public int foo() { return 2; }
