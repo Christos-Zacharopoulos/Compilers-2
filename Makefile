@@ -9,3 +9,6 @@ clean:
 	rm -f *.class *~
 	rm  JavaCharStream.java MiniJavaParser* minijava-jtb.jj Token* ParseException.java
 	rm -rf syntaxtree/ visitor/
+
+execute:
+	java Main ./Tests/test1.java
