@@ -8,7 +8,7 @@ class ClassInfo {
     String name;
     String type;
 
-    int membersOffset;
+    int memberOffset;
     int functionOffset;
     int overriden;
 
@@ -35,7 +35,6 @@ class ClassInfo {
 
         return child;
     }
-
 
     public boolean hasMember (ClassInfo info, String name) {
         return (info.members.get(name) != null);

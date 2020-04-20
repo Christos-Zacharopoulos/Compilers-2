@@ -16,12 +16,11 @@ class Main {
 			try {
 				fis = new FileInputStream(args[0]);
 				MiniJavaParser parser = new MiniJavaParser(fis);
+				FirstVisitor firtstVisitor = new FirstVisitor();
 				Goal root = parser.Goal();
-				FirstVisitor eval = new FirstVisitor();
 
-				root.accept(visitor, main);
+				root.accept(firtstVisitor, main);
 
-				System.out.println(root.accept(eval, null));
 			} catch (ParseException ex) {
 				System.out.println(ex.getMessage());
 			} catch (FileNotFoundException ex) {
