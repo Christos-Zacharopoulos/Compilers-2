@@ -12,7 +12,7 @@ class A {
     public boolean fa() { return 3; }
 }
 
-class B extends A{
+class B extends A {
     A type;
     int k;
     public int foo() { return 4; }

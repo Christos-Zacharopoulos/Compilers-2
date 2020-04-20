@@ -2,7 +2,7 @@ import visitor.GJDepthFirst;
 import syntaxtree.*;
 
 
-public class FirstVisitor extends GJDepthFirst<String, String> {
+public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
 
     /**
      * f0 -> MainClass()
@@ -61,10 +61,8 @@ public class FirstVisitor extends GJDepthFirst<String, String> {
         String name = n.f1.accept(this, info);
 
         if ( info.hasMember(info, name) ) {
-            System.out.println("Class <" + name + "> has already been defined!");
-            throw new Exception();
+            throw new Exception("Class <" + name + "> has already been defined!");
         }
-
         info.addMembers(info, info, name, name);
 
         for ( int i=0; i<n.f3.size(); i++ ) {
@@ -93,8 +91,7 @@ public class FirstVisitor extends GJDepthFirst<String, String> {
         String superClass = n.f3.accept(this, info);
 
         if ( !(info.hasMember(info, superClass)) ) {
-            System.out.println("Class <" + superClass + "> is not defined!\nSuperclass must be defined before subclass.");
-            throw new Exception();
+            throw new Exception("Class <" + superClass + "> is not defined!\nSuperclass must be defined before subclass.");
         }
         ClassInfo subClassNode = info.addMembers(info, info.getMember(info, superClass) , subClass, subClass);
 
