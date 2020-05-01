@@ -14,12 +14,16 @@ class Main {
 			ClassInfo main = new ClassInfo();
 
 			try {
-				fis = new FileInputStream(args[0]);
+				fis = new FileInputStream(args[i]);
 				MiniJavaParser parser = new MiniJavaParser(fis);
 				FirstVisitor firtstVisitor = new FirstVisitor();
 				Goal root = parser.Goal();
-
 				root.accept(firtstVisitor, main);
+
+				SecondVisitor secondVisitor = new SecondVisitor();
+				root.accept(secondVisitor, main);
+
+				main.printOffsets();
 
 			} catch (ParseException ex) {
 				System.out.println(ex.getMessage());

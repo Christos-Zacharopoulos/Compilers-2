@@ -10,8 +10,13 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
      * f2 -> <EOF>
      */
     public String visit(Goal n, ClassInfo info) throws Exception {
+        info.name = "GOAL";
         n.f0.accept(this, info);
-        n.f1.accept(this, info);
+
+        for (int i=0; i<n.f1.size(); i++) {
+            n.f1.elementAt(i).accept(this,info);
+        }
+
         return null;
     }
 
@@ -37,12 +42,12 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
      */
     public String visit(MainClass n, ClassInfo info) throws Exception {
 
-        ClassInfo Class = info.addMembers(info, info, n.f1.accept(this, info), "class");
-        ClassInfo Main = info.addFunctions(info, Class, "main", "void");
-        ClassInfo NameInfo = info.addMembers(info, Main, n.f11.accept(this, info), "String[]");
+        ClassInfo Class = info.addVariables(info, n.f1.accept(this, info), "class", null);
+        ClassInfo Main = Class.addFunctions(Class, "main", "void", null, null);
+        ClassInfo NameInfo = Main.addVariables(Main, n.f11.accept(this, info), "String[]", null);
 
         for (int i=0; i<n.f14.size(); i++) {
-            n.f14.elementAt(i).accept(this,info);
+            n.f14.elementAt(i).accept(this, Main);
         }
 
         return null;
@@ -60,16 +65,16 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String name = n.f1.accept(this, info);
 
-        if ( info.hasMember(info, name) ) {
+        if ( info.hasVariable(info, name) ) {
             throw new Exception("Class <" + name + "> has already been defined!");
         }
-        info.addMembers(info, info, name, name);
+        ClassInfo newClass = info.addVariables(info, name, name, null);
 
         for ( int i=0; i<n.f3.size(); i++ ) {
-            n.f3.elementAt(i).accept(this,info);
+            n.f3.elementAt(i).accept(this, newClass);
         }
         for ( int i=0; i<n.f4.size(); i++ ) {
-            n.f4.elementAt(i).accept(this,info);
+            n.f4.elementAt(i).accept(this, newClass);
         }
 
         return null;
@@ -89,28 +94,24 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String subClass = n.f1.accept(this, info);
         String superClass = n.f3.accept(this, info);
+        ClassInfo superClassInfo = info.getVariable(info, superClass);
 
-        if ( !(info.hasMember(info, superClass)) ) {
+        if ( !(info.hasVariable(info, superClass)) || superClassInfo == null ) {
             throw new Exception("Class <" + superClass + "> is not defined!\nSuperclass must be defined before subclass.");
         }
-        ClassInfo subClassNode = info.addMembers(info, info.getMember(info, superClass) , subClass, subClass);
+        ClassInfo subClassNode = superClassInfo.addVariables(info, subClass, subClass, null);
 
         if ( n.f5.size() != 0 ) {
-            subClassNode.memberOffset = subClassNode.parent.memberOffset;
+            subClassNode.variableOffset = subClassNode.parent.variableOffset;
             for ( int i=0; i<n.f5.size(); i++ ) {
-                n.f5.elementAt(i).accept(this,info);
+                n.f5.elementAt(i).accept(this, subClassNode);
             }
         }
 
         if ( n.f6.size() != 0 ) {
-            subClassNode.functionsOffset = subClassNode.parent.functionsOffset;
-            //TODO: Abstract this ugly thingy.
-            for( int i = 0 ; i < subClassNode.parent.functionsOffset.size() ; i++ ) {
-                subClassNode.functionsOffset.add(subClassNode.parent.functionsOffset.get(i));
-            }
-
+            subClassNode.functionOffset = subClassNode.parent.functionOffset;
             for ( int i=0; i<n.f6.size(); i++ ) {
-                n.f6.elementAt(i).accept(this,info);
+                n.f6.elementAt(i).accept(this, subClassNode);
             }
         }
 
@@ -123,9 +124,191 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
      * f2 -> ";"
      */
     public String visit(VarDeclaration n, ClassInfo info) throws Exception {
+
+        String type = n.f0.accept(this, info);
+        String name = n.f1.accept(this, info);
+
+        if( info.hasVariable(info, name) ) {
+            throw new Exception("Variable <" + name +"> has already been deifned.");
+        }
+
+        ClassInfo var = info.addVariables(info, name, type, info.variableOffset);
+
+        info.addVariableOffset(info, type);
+        info.declarationsOffset.add(var);
+
+        return null;
+    }
+
+    /**
+     * f0 -> "public"
+     * f1 -> Type()
+     * f2 -> Identifier()
+     * f3 -> "("
+     * f4 -> ( FormalParameterList() )?
+     * f5 -> ")"
+     * f6 -> "{"
+     * f7 -> ( VarDeclaration() )*
+     * f8 -> ( Statement() )*
+     * f9 -> "return"
+     * f10 -> Expression()
+     * f11 -> ";"
+     * f12 -> "}"
+     */
+    public String visit(MethodDeclaration n, ClassInfo info) throws Exception {
+
+        String type = n.f1.accept(this, info);
+        String name = n.f2.accept(this, info);
+
+        if ( info.hasFunction(info, name) ) {
+            throw new Exception("Method <" + name + "> has already been defined!");
+        }
+        ClassInfo temp = info.findFunction(info, name);
+
+        ClassInfo method;
+
+        if(temp == null) {
+            method = info.addFunctions(info, name, type, info.functionOffset, null);
+            info.addFunctionOffset(info);
+            info.declarationsOffset.add(method);
+        }
+        else {
+            method = info.addFunctions(info, name, type, temp.functionOffset, true);
+        }
+
+        if (n.f4.present()) {
+            n.f4.accept(this, method);
+        }
+
+        if(info.isMethodOverloaded(info.parent, name, method)) {
+            throw new Exception("Method overload is not allowed. Check arguments of method <" + name + ">");
+        }
+
+
+        for ( int i=0; i<n.f7.size(); i++ ) {
+            n.f7.elementAt(i).accept(this, method);
+        }
+
+        n.f10.accept(this, method);
+
+        return null;
+    }
+
+    /**
+     * f0 -> FormalParameter()
+     * f1 -> FormalParameterTail()
+     */
+    public String visit(FormalParameterList n, ClassInfo info) throws Exception {
+
         n.f0.accept(this, info);
         n.f1.accept(this, info);
 
         return null;
+    }
+
+    /**
+     * f0 -> Type()
+     * f1 -> Identifier()
+     */
+    public String visit(FormalParameter n, ClassInfo info) throws Exception {
+
+        String type = n.f0.accept(this, info);
+        String name = n.f1.accept(this, info);
+
+        if ( info.hasVariable(info, name) ) {
+            throw new Exception("Variable <" + name + "> has already been defined!");
+        }
+        ClassInfo arg = info.addVariables(info, name, type, null);
+        info.addArguments(info, arg);
+
+        return null;
+    }
+
+    /**
+     * f0 -> ( FormalParameterTerm() )*
+     */
+    public String visit(FormalParameterTail n, ClassInfo info) throws Exception {
+
+        for ( int i=0; i<n.f0.size(); i++ ) {
+            n.f0.elementAt(i).accept(this,info);
+        }
+
+        return null;
+    }
+
+    /**
+     * f0 -> ","
+     * f1 -> FormalParameter()
+     */
+    public String visit(FormalParameterTerm n, ClassInfo info) throws Exception {
+
+        n.f1.accept(this, info);
+
+        return null;
+    }
+
+
+    /**
+     * f0 -> ArrayType()
+     *       | BooleanType()
+     *       | IntegerType()
+     *       | Identifier()
+     */
+    public String visit(Type n, ClassInfo info) throws Exception {
+
+        return n.f0.accept(this, info);
+    }
+
+    /**
+     * f0 -> BooleanArrayType()
+     *       | IntegerArrayType()
+     */
+    public String visit(ArrayType n, ClassInfo info) throws Exception {
+
+        return n.f0.accept(this, info);
+    }
+
+    /**
+     * f0 -> "boolean"
+     * f1 -> "["
+     * f2 -> "]"
+     */
+    public String visit(BooleanArrayType n, ClassInfo info) throws Exception {
+
+        return "boolean[]";
+    }
+
+    /**
+     * f0 -> "int"
+     * f1 -> "["
+     * f2 -> "]"
+     */
+    public String visit(IntegerArrayType n, ClassInfo info) throws Exception {
+
+        return "int[]";
+    }
+
+    /**
+     * f0 -> "boolean"
+     */
+    public String visit(BooleanType n, ClassInfo info) throws Exception {
+
+        return "boolean";
+    }
+
+    /**
+     * f0 -> "int"
+     */
+    public String visit(IntegerType n, ClassInfo info) throws Exception {
+
+        return "int";
+    }
+
+    /**
+     * f0 -> <IDENTIFIER>
+     */
+    public String visit(Identifier n, ClassInfo info) throws Exception {
+
+        return n.f0.toString();
     }
 }
