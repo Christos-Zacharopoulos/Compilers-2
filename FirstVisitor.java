@@ -163,13 +163,13 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
         if ( info.hasFunction(name) ) {
             throw new Exception("Method <" + name + "> has already been defined!");
         }
-        ClassInfo temp = info.findFunction(info, name);
+        ClassInfo temp = info.findFunction(name);
 
         ClassInfo method;
 
         if(temp == null) {
             method = info.addFunctions(info, name, type, info.functionOffset, null);
-            info.addFunctionOffset(info);
+            info.addFunctionOffset();
             info.declarationsOffset.add(method);
         }
         else {
@@ -180,7 +180,7 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
             n.f4.accept(this, method);
         }
 
-        if(info.isMethodOverloaded(info.parent, name, method)) {
+        if(info.parent.isMethodOverloaded(name, method)) {
             throw new Exception("Method overload is not allowed. Check arguments of method <" + name + ">");
         }
 
