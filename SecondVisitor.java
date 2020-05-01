@@ -45,7 +45,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
      */
     public String visit(MainClass n, ClassInfo info) throws Exception {
 
-        ClassInfo Main = info.getFunction(info.getVariable(info, n.f1.accept(this, info)), "main");
+        ClassInfo Main = info.getFunction(info.getVariable(n.f1.accept(this, info)), "main");
 
         for (int i=0; i<n.f14.size(); i++) {
             n.f14.elementAt(i).accept(this, Main);
@@ -68,7 +68,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
      */
     public String visit(ClassDeclaration n, ClassInfo info) throws Exception {
 
-        ClassInfo Class = info.getVariable(info, n.f1.accept(this, info));
+        ClassInfo Class = info.getVariable(n.f1.accept(this, info));
 
         for ( int i=0; i<n.f3.size(); i++ ) {
             n.f3.elementAt(i).accept(this, Class);
@@ -92,7 +92,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
      */
     public String visit(ClassExtendsDeclaration n, ClassInfo info) throws Exception {
 
-        ClassInfo Class = info.getVariable(info, n.f1.accept(this, info));
+        ClassInfo Class = info.getVariable(n.f1.accept(this, info));
 
         for ( int i=0; i<n.f5.size(); i++ ) {
             n.f5.elementAt(i).accept(this, Class);
@@ -319,7 +319,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
     public String visit(AssignmentStatement n, ClassInfo info) throws Exception {
         String id = n.f0.accept(this, info);
         String exp = n.f2.accept(this, info);
-        String expType = info.isThis(exp) ? info.parent.name :  info.getVariableType(info, exp);
+        String expType = info.isThis(exp) ? info.parent.name :  info.getVariableType(exp);
 
         if ( expType == null ) {
            if ( !info.isPrimitiveType(exp) ) {
@@ -329,8 +329,8 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
            }
         }
 
-        if ( info.notEqualTypes(id, expType) && !info.inheritanceCheck(info, expType, info.getVariableType(info, id)) ) {
-            throw new Exception("Type of <" + id + "> is " + info.getVariableType(info, id) + " and <" + exp + "> are not the same.");
+        if ( info.notEqualTypes(id, expType) && !info.inheritanceCheck(info, expType, info.getVariableType(id)) ) {
+            throw new Exception("Type of <" + id + "> is " + info.getVariableType(id) + " and <" + exp + "> are not the same.");
         }
 
         return null;
@@ -348,7 +348,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
     public String visit(ArrayAssignmentStatement n, ClassInfo info) throws Exception {
 
         String id = n.f0.accept(this, info);
-        String type = info.getVariableType(info, id);
+        String type = info.getVariableType(id);
 
         if (!info.isIntArray(type) && !info.isBooleanArray(type) ) {
             throw new Exception("Invalid left-hand side type. Expected type to be int[] or boolean[] but have <" + type + ">.");
@@ -356,13 +356,13 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String bracketExp = n.f2.accept(this, info);
 
-        if (!info.isInt(bracketExp) && !info.isInt(info.getVariableType(info, bracketExp))) {
+        if (!info.isInt(bracketExp) && !info.isInt(info.getVariableType(bracketExp))) {
             throw new Exception("Intex of array <" + id + "> should be int.");
         }
 
         String assignmentExp = n.f5.accept(this, info);
 
-        if (!info.isInt(assignmentExp) && !info.isInt(info.getVariableType(info, assignmentExp))) {
+        if (!info.isInt(assignmentExp) && !info.isInt(info.getVariableType(assignmentExp))) {
             throw new Exception("Invalid assignment. Expected type to be int but have <" + assignmentExp + ">.");
         }
 
@@ -382,7 +382,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String exp = n.f2.accept(this, info);
 
-        if (!info.isBoolean(exp) && !info.isBoolean(info.getVariableType(info, exp))) {
+        if (!info.isBoolean(exp) && !info.isBoolean(info.getVariableType(exp))) {
             throw new Exception("Invalid if expression. Expected type to be boolean but have <" + exp + ">.");
         }
         n.f4.accept(this, info);
@@ -401,7 +401,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String exp = n.f2.accept(this, info);
 
-        if (!info.isBoolean(exp) && !info.isBoolean(info.getVariableType(info, exp))) {
+        if (!info.isBoolean(exp) && !info.isBoolean(info.getVariableType(exp))) {
             throw new Exception("Invalid while expression. Expected type to be boolean but have <" + exp + ">.");
         }
 
@@ -419,7 +419,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String exp = n.f2.accept(this, info);
 
-        if ((!info.isBoolean(exp) && !info.isBoolean(info.getVariableType(info, exp))) && (!info.isInt(exp) && !info.isInt(info.getVariableType(info, exp)))) {
+        if ((!info.isBoolean(exp) && !info.isBoolean(info.getVariableType(exp))) && (!info.isInt(exp) && !info.isInt(info.getVariableType(exp)))) {
             throw new Exception("Invalid print expression. Expected type to be boolean or int but have <" + exp + ">.");
         }
 
@@ -566,7 +566,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
             function = info.findFunction(info, method);
         }
         else {
-            ClassInfo outer = info.getVariable(info.getRoot(), info.getVariableType(info, name));
+            ClassInfo outer = info.getRoot().getVariable(info.getVariableType(name));
 
             function = info.findFunction(outer, method);
         }

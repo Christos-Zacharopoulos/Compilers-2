@@ -65,7 +65,7 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String name = n.f1.accept(this, info);
 
-        if ( info.hasVariable(info, name) ) {
+        if ( info.hasVariable(name) ) {
             throw new Exception("Class <" + name + "> has already been defined!");
         }
         ClassInfo newClass = info.addVariables(info, name, name, null);
@@ -94,9 +94,9 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String subClass = n.f1.accept(this, info);
         String superClass = n.f3.accept(this, info);
-        ClassInfo superClassInfo = info.getVariable(info, superClass);
+        ClassInfo superClassInfo = info.getVariable(superClass);
 
-        if ( !(info.hasVariable(info, superClass)) || superClassInfo == null ) {
+        if ( !(info.hasVariable(superClass)) || superClassInfo == null ) {
             throw new Exception("Class <" + superClass + "> is not defined!\nSuperclass must be defined before subclass.");
         }
         ClassInfo subClassNode = superClassInfo.addVariables(info, subClass, subClass, null);
@@ -128,7 +128,7 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
         String type = n.f0.accept(this, info);
         String name = n.f1.accept(this, info);
 
-        if( info.hasVariable(info, name) ) {
+        if( info.hasVariable(name) ) {
             throw new Exception("Variable <" + name +"> has already been deifned.");
         }
 
@@ -215,11 +215,11 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
         String type = n.f0.accept(this, info);
         String name = n.f1.accept(this, info);
 
-        if ( info.hasVariable(info, name) ) {
+        if ( info.hasVariable(name) ) {
             throw new Exception("Variable <" + name + "> has already been defined!");
         }
         ClassInfo arg = info.addVariables(info, name, type, null);
-        info.addArguments(info, arg);
+        info.addArguments(arg);
 
         return null;
     }

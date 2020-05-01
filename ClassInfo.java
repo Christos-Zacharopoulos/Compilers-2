@@ -30,17 +30,17 @@ class ClassInfo extends Base {
         if (!isPrimitiveType(type)) {
             ClassInfo root = getRoot();
 
-            if ( !root.hasVariable(root, type) ) return false;
+            if ( !root.hasVariable(type) ) return false;
         }
         return true;
     }
 
 
     public boolean notEqualTypes(String a, String b) {
-        return (!areEqual(a, b) && !areEqual(getVariableType(this, a), b));
+        return (!areEqual(a, b) && !areEqual(this.getVariableType(a), b));
     }
 
-    public void addArguments(ClassInfo parent, ClassInfo arg) { parent.arguments.add(arg); }
+    public void addArguments(ClassInfo arg) { this.arguments.add(arg); }
 
 
 
@@ -61,12 +61,12 @@ class ClassInfo extends Base {
         return child;
     }
 
-    public boolean hasVariable (ClassInfo info, String name) {
-        return (info.variables.get(name) != null);
+    public boolean hasVariable (String name) {
+        return (this.getVariable(name) != null);
     }
 
-    public ClassInfo getVariable (ClassInfo info, String name) {
-        return info.variables.get(name);
+    public ClassInfo getVariable (String name) {
+        return this.variables.get(name);
     }
 
     public void addVariableOffset (ClassInfo info, String type) {
@@ -79,11 +79,13 @@ class ClassInfo extends Base {
 
     }
 
-    public String getVariableType (ClassInfo info, String name) {
+    public String getVariableType (String name) {
+        ClassInfo info = this;
+
 
         while(info != null) {
 
-            if(info.hasVariable(info, name)) return info.getVariable(info, name).type;
+            if(info.hasVariable(name)) return info.getVariable(name).type;
 
             else info = info.parent;
         }
@@ -160,7 +162,7 @@ class ClassInfo extends Base {
     }
 
     public ClassInfo findSuperClass ( ClassInfo info, String type1, String type2) {
-        ClassInfo curent = getVariable(getRoot(), getVariableType(info, type1));
+        ClassInfo curent = getRoot().getVariable(info.getVariableType(type1));
 
         while (curent != null) {
             if(curent.name.equals(type2)) return curent;
@@ -185,7 +187,7 @@ class ClassInfo extends Base {
 
         for(String s : this.variables.keySet()) {
 
-            ClassInfo n = this.getVariable(this, s);
+            ClassInfo n = this.getVariable(s);
 
             if(!n.type.equals("class")) {
                 for(int i = 0 ; i < n.declarationsOffset.size() ; i++) {
