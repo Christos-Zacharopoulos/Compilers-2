@@ -36,8 +36,8 @@ class ClassInfo extends Base {
     }
 
 
-    public boolean notEqualTypes(ClassInfo info, String a, String b) {
-        return (!areEqual(a, b) && !areEqual(getVariableType(info, a), b));
+    public boolean notEqualTypes(String a, String b) {
+        return (!areEqual(a, b) && !areEqual(getVariableType(this, a), b));
     }
 
     public void addArguments(ClassInfo parent, ClassInfo arg) { parent.arguments.add(arg); }

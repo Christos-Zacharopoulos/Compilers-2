@@ -164,7 +164,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
             throw new Exception("Method overload is not allowed. Return type can't be null.. Check  method <" + name + ">.");
         }
 
-        else if ( info.notEqualTypes(Method, exp, Method.type) ) {
+        else if ( Method.notEqualTypes(exp, Method.type) ) {
             throw new Exception("Method overload is not allowed. Defined and actual return types are different. Check  method <" + name + ">.");
         }
 
@@ -329,7 +329,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
            }
         }
 
-        if ( info.notEqualTypes(info, id, expType) && !info.inheritanceCheck(info, expType, info.getVariableType(info, id)) ) {
+        if ( info.notEqualTypes(id, expType) && !info.inheritanceCheck(info, expType, info.getVariableType(info, id)) ) {
             throw new Exception("Type of <" + id + "> is " + info.getVariableType(info, id) + " and <" + exp + "> are not the same.");
         }
 
@@ -452,7 +452,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
         String left = n.f0.accept(this, info);
         String right = n.f2.accept(this, info);
 
-        if ( info.notEqualTypes(info, left, INT) || info.notEqualTypes(info, right, INT)) {
+        if ( info.notEqualTypes(left, INT) || info.notEqualTypes(right, INT)) {
             throw new Exception("Invalid COMPARISON( < ) expression. Must be between integers but have: left <" + left + ">, right <" + right + ">,");
         }
 
@@ -469,7 +469,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
         String left = n.f0.accept(this, info);
         String right = n.f2.accept(this, info);
 
-        if ( info.notEqualTypes(info, left, INT) || info.notEqualTypes(info, right, INT)) {
+        if ( info.notEqualTypes(left, INT) || info.notEqualTypes(right, INT)) {
             throw new Exception("Invalid PLUS( + ) expression. Must be between integers but have: left <" + left + ">, right <" + right + ">,");
         }
 
@@ -486,7 +486,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
         String left = n.f0.accept(this, info);
         String right = n.f2.accept(this, info);
 
-        if ( info.notEqualTypes(info, left, INT) || info.notEqualTypes(info, right, INT)) {
+        if ( info.notEqualTypes(left, INT) || info.notEqualTypes(right, INT)) {
             throw new Exception("Invalid MINUS( - ) expression. Must be between integers but have: left <" + left + ">, right <" + right + ">,");
         }
 
@@ -503,7 +503,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
         String left = n.f0.accept(this, info);
         String right = n.f2.accept(this, info);
 
-        if ( info.notEqualTypes(info, left, INT) || info.notEqualTypes(info, right, INT)) {
+        if ( info.notEqualTypes(left, INT) || info.notEqualTypes(right, INT)) {
             throw new Exception("Invalid TIMES( * ) expression. Must be between integers but have: left <" + left + ">, right <" + right + ">.");
         }
 
@@ -520,13 +520,13 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String id = n.f0.accept(this, info);
 
-        if ( info.notEqualTypes(info, id, INT_ARRAY) && info.notEqualTypes(info, id, BOOLEAN_ARRAY)) {
+        if ( info.notEqualTypes(id, INT_ARRAY) && info.notEqualTypes(id, BOOLEAN_ARRAY)) {
             throw new Exception("Invalid left-hand side type. Expected type to be int[] or boolean[].");
         }
 
         String exp = n.f2.accept(this, info);
 
-        if ( info.notEqualTypes(info, exp, INT)) {
+        if ( info.notEqualTypes(exp, INT)) {
             throw new Exception("Intex of array <" + id + "> should be int.");
         }
 
@@ -542,7 +542,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String id = n.f0.accept(this, info);
 
-        if ( info.notEqualTypes(info, id, INT_ARRAY) && info.notEqualTypes(info, id, BOOLEAN_ARRAY)) {
+        if ( info.notEqualTypes(id, INT_ARRAY) && info.notEqualTypes(id, BOOLEAN_ARRAY)) {
             throw new Exception("Invalid left-hand side type. Expected type to be int[] or boolean[].");
         }
 
@@ -583,7 +583,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
                 throw new Exception("Wrong number of arguments for <" + function.name + ">.");
             }
             for(int i = 0 ; i < function.arguments.size() ; i++) {
-                if(info.notEqualTypes(info, callArgs[i], function.arguments.get(i).type) && !info.inheritanceCheck(info, callArgs[i], function.arguments.get(i).type)) {
+                if(info.notEqualTypes(callArgs[i], function.arguments.get(i).type) && !info.inheritanceCheck(info, callArgs[i], function.arguments.get(i).type)) {
                     throw new Exception("Method overload is not allowed.");
                 }
             }
@@ -605,7 +605,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
         String left = n.f0.accept(this, info);
         String right = n.f2.accept(this, info);
 
-        if ( info.notEqualTypes(info, left, BOOLEAN) && info.notEqualTypes(info, right, BOOLEAN)) {
+        if ( info.notEqualTypes(left, BOOLEAN) && info.notEqualTypes(right, BOOLEAN)) {
             throw new Exception("Invalid AND( && ) expression. Must be between booleans but have: left <" + left + ">, right <" + right + ">,");
         }
 
@@ -721,7 +721,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String exp = n.f3.accept(this, info);
 
-        if ( info.notEqualTypes(info, exp, INT)) {
+        if ( info.notEqualTypes(exp, INT)) {
             throw new Exception("Expression in array allocation should be int.");
         }
         return BOOLEAN_ARRAY;
@@ -737,7 +737,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
     public String visit(IntegerArrayAllocationExpression n, ClassInfo info) throws Exception {
 
         String exp = n.f3.accept(this, info);
-        if ( info.notEqualTypes(info, exp, INT)) {
+        if ( info.notEqualTypes(exp, INT)) {
             throw new Exception("Expression in array allocation should be int.");
         }
         return INT_ARRAY;
@@ -761,7 +761,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
     public String visit(NotExpression n, ClassInfo info) throws Exception {
         String clause = n.f1.accept(this, info);
 
-        if ( info.notEqualTypes(info, clause, BOOLEAN)) {
+        if ( info.notEqualTypes(clause, BOOLEAN)) {
             throw new Exception("Invalid NOT( ! ) expression. Must have boolean but have  <" + clause + ">.");
         }
 
