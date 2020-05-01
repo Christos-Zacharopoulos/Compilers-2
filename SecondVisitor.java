@@ -422,8 +422,8 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
 
         String exp = n.f2.accept(this, info);
 
-        if ((!info.isBoolean(exp) && !info.isBoolean(info.getVariableType(exp))) && (!info.isInt(exp) && !info.isInt(info.getVariableType(exp)))) {
-            throw new Exception("Invalid print expression. Expected type to be boolean or int but have <" + exp + ">.");
+        if (!info.isInt(exp) && !info.isInt(info.getVariableType(exp))) {
+            throw new Exception("Invalid print expression. Expected type to int but have <" + exp + ">.");
         }
 
         return null;
