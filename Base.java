@@ -14,10 +14,11 @@ class Base {
     }
 
 
-    public String INT = "int";
-    public String BOOLEAN = "boolean";
-    public String INT_ARRAY = "int[]";
-    public String BOOLEAN_ARRAY = "boolean[]";
+    final String INT = "int";
+    final String BOOLEAN = "boolean";
+    final String INT_ARRAY = "int[]";
+    final String BOOLEAN_ARRAY = "boolean[]";
+    final String THIS = "this";
 
     public ArrayList<String> TYPES = new ArrayList<String>(Arrays.asList(INT, INT_ARRAY, BOOLEAN, BOOLEAN_ARRAY));
 
@@ -31,7 +32,7 @@ class Base {
     }
 
     public boolean isThis(String item) {
-        return areEqual(item, "this");
+        return areEqual(item, THIS);
     }
 
     public boolean isInt(String item) {

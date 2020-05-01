@@ -4,10 +4,13 @@ import java.util.*;
 
 
 public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
-    public String INT = "int";
-    public String BOOLEAN = "boolean";
-    public String INT_ARRAY = "int[]";
-    public String BOOLEAN_ARRAY = "boolean[]";
+    final String INT = "int";
+    final String BOOLEAN = "boolean";
+    final String INT_ARRAY = "int[]";
+    final String BOOLEAN_ARRAY = "boolean[]";
+    final String THIS = "this";
+
+
     /**
      * f0 -> MainClass()
      * f1 -> ( TypeDeclaration() )*
@@ -45,7 +48,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
      */
     public String visit(MainClass n, ClassInfo info) throws Exception {
 
-        ClassInfo Main = info.getFunction(info.getVariable(n.f1.accept(this, info)), "main");
+        ClassInfo Main = info.getVariable(n.f1.accept(this, info)).getFunction("main");
 
         for (int i=0; i<n.f14.size(); i++) {
             n.f14.elementAt(i).accept(this, Main);
@@ -144,7 +147,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
             throw new Exception("Method <" + name + ">  has invalid return type <" + type + ">.");
         }
 
-        ClassInfo Method = info.getFunction(info, name);
+        ClassInfo Method = info.getFunction(name);
 
         if (n.f4.present()) {
             n.f4.accept(this, Method);
@@ -563,12 +566,12 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
         String method = n.f2.accept(this, info);
         ClassInfo function;
         if ( info.isThis(name)) {
-            function = info.findFunction(info, method);
+            function = info.findFunction(method);
         }
         else {
             ClassInfo outer = info.getRoot().getVariable(info.getVariableType(name));
 
-            function = info.findFunction(outer, method);
+            function = outer.findFunction(method);
         }
 
         if (function == null) {
@@ -699,7 +702,7 @@ public class SecondVisitor extends GJDepthFirst<String, ClassInfo> {
      * f0 -> "this"
      */
     public String visit(ThisExpression n, ClassInfo info) throws Exception {
-        return "this";
+        return THIS;
     }
 
     /**

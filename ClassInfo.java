@@ -111,17 +111,18 @@ class ClassInfo extends Base {
         return child;
     }
 
-    public boolean hasFunction (ClassInfo info, String name) { return (info.functions.get(name) != null); }
+    public boolean hasFunction (String name) { return (this.getFunction(name) != null); }
 
-    public ClassInfo getFunction (ClassInfo info, String name) { return info.functions.get(name); }
+    public ClassInfo getFunction (String name) { return this.functions.get(name); }
 
-    public void addFunctionOffset (ClassInfo info) { info.functionOffset += 8; }
+    public void addFunctionOffset () { this.functionOffset += 8; }
 
-    public ClassInfo findFunction (ClassInfo info, String name) {
+    public ClassInfo findFunction (String name) {
+        ClassInfo info = this;
 
         while(info != null) {
 
-            if(info.hasFunction(info, name)) return info.getFunction(info, name);
+            if(info.hasFunction(name)) return info.getFunction(name);
 
             else info = info.parent;
         }
@@ -129,15 +130,8 @@ class ClassInfo extends Base {
         return null;
     }
 
-    public String getFunctionType (ClassInfo info, String name) {
-        ClassInfo fun = findFunction(info, name);
-
-        return fun != null ? fun.type : null;
-    }
-
-
-    public Boolean isMethodOverloaded(ClassInfo info, String method, ClassInfo subFunc) {
-        ClassInfo superFunc = findFunction(info, method);
+    public Boolean isMethodOverloaded(String method, ClassInfo subFunc) {
+        ClassInfo superFunc = this.findFunction(method);
 
         if(superFunc != null) {
             if(subFunc.arguments.size() != superFunc.arguments.size()) return true;
@@ -150,7 +144,8 @@ class ClassInfo extends Base {
         return false;
     }
 
-    public String thisRefersTo ( ClassInfo info, String type) {
+    public String thisRefersTo ( String type) {
+        ClassInfo info = this;
 
         while (  info != null ) {
             if(info.type.equals(info.name)) return info.type;
@@ -161,8 +156,8 @@ class ClassInfo extends Base {
         return type;
     }
 
-    public ClassInfo findSuperClass ( ClassInfo info, String type1, String type2) {
-        ClassInfo curent = getRoot().getVariable(info.getVariableType(type1));
+    public ClassInfo findSuperClass (String type1, String type2) {
+        ClassInfo curent = getRoot().getVariable(this.getVariableType(type1));
 
         while (curent != null) {
             if(curent.name.equals(type2)) return curent;
@@ -176,11 +171,11 @@ class ClassInfo extends Base {
 
     public boolean inheritanceCheck(ClassInfo info, String type1, String type2) {
 
-        if ( info.isThis(type1) ) type1 = info.thisRefersTo(info, type1);
+        if ( info.isThis(type1) ) type1 = info.thisRefersTo(type1);
 
-        if ( info.isThis(type2) ) type2 = info.thisRefersTo(info, type2);
+        if ( info.isThis(type2) ) type2 = info.thisRefersTo(type2);
 
-        return info.findSuperClass(info, type1, type2) != null;
+        return info.findSuperClass(type1, type2) != null;
     }
 
     public void printOffsets() {
