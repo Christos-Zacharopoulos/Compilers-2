@@ -160,7 +160,7 @@ public class FirstVisitor extends GJDepthFirst<String, ClassInfo> {
         String type = n.f1.accept(this, info);
         String name = n.f2.accept(this, info);
 
-        if ( info.hasFunction(info, name) ) {
+        if ( info.hasFunction(name) ) {
             throw new Exception("Method <" + name + "> has already been defined!");
         }
         ClassInfo temp = info.findFunction(info, name);

@@ -111,7 +111,7 @@ class ClassInfo extends Base {
         return child;
     }
 
-    public boolean hasFunction (ClassInfo info, String name) { return (info.functions.get(name) != null); }
+    public boolean hasFunction (String name) { return (this.getFunction(this, name) != null); }
 
     public ClassInfo getFunction (ClassInfo info, String name) { return info.functions.get(name); }
 
@@ -121,7 +121,7 @@ class ClassInfo extends Base {
 
         while(info != null) {
 
-            if(info.hasFunction(info, name)) return info.getFunction(info, name);
+            if(info.hasFunction(name)) return info.getFunction(info, name);
 
             else info = info.parent;
         }
